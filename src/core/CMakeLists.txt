@@ -1,4 +1,4 @@
-target_sources(OMVLL PRIVATE
+target_sources(OMVLL PUBLIC #PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/omvll_config.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/log.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/plugin.cpp

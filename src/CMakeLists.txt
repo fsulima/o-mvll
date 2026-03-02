@@ -32,7 +32,7 @@ set(OMVLL_ABI "${OMVLL_DEFAULT_ABI}" CACHE STRING
 if(OMVLL_ABI STREQUAL "Apple")
   set(LLVM_REQUIRED_VERSION 19.1.4)
 elseif(OMVLL_ABI STREQUAL "Android")
-  set(LLVM_REQUIRED_VERSION 17)
+  set(LLVM_REQUIRED_VERSION 17.0.2)
 else()
   # TODO: switch Linux build to release NDK
   set(LLVM_REQUIRED_VERSION 17.0.2)
@@ -129,7 +129,11 @@ set(OMVLL_LINK_OPT
 if(NOT APPLE)
   list(APPEND OMVLL_LINK_OPT
     -Wl,-as-needed
-    -Wl,--gc-sections
+    #-Wl,-export-dynamic-symbol=llvmGetPassPluginInfo
+    -Wl,-flat_namespace
+    -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/export.map
+    #-Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/exports.txt
+    #-Wl,--gc-sections
     -Wl,--exclude-libs,ALL
     -fuse-ld=gold
   )
@@ -208,7 +212,7 @@ llvm_map_components_to_libnames(llvm_libs
 
 # TODO: double-check with NDK on Linux
 if(OMVLL_ABI STREQUAL "Android")
-  target_link_libraries(OMVLL PRIVATE LLVM)
+  target_link_libraries(OMVLL PRIVATE ${llvm_libs})#LLVM)
 else()
   target_link_libraries(OMVLL PRIVATE
     ${llvm_libs}
@@ -229,3 +233,6 @@ endif()
 add_subdirectory("core")
 add_subdirectory("passes")
 add_subdirectory("test")
+
+#string(REPLACE "-lzstd::libzstd_shared" "-lzstd" CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN OFF)
